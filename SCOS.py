@@ -5,7 +5,6 @@ import logging
 import os
 
 from typing import NoReturn
-
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from qcloud_cos import CosConfig, CosS3Client
@@ -106,7 +105,7 @@ class Uploader(CosClientBase):
                 print(f'Uploading {file} to {self.bucket}:{key} with {len(data)} bytes')
                 self.auth().put_object(Bucket=self.bucket, Key=key, Body=self.encrypt(data), Expires='3600')
 
-    def encrypt(self, data) -> bytes:
+    def encrypt(self, data: bytes) -> bytes:
         nonce = get_random_bytes(8)
         cipher = AES.new(self.encrypt_key, AES.MODE_CTR, nonce=nonce)
         enc_data = cipher.encrypt(data)
@@ -132,7 +131,7 @@ class Downloader(CosClientBase):
                 with open(path, 'wb') as f:
                     f.write(self.decrypt(data))
 
-    def decrypt(self, data) -> bytes:
+    def decrypt(self, data: bytes) -> bytes:
         nonce = data[:8]
         cipher = AES.new(self.encrypt_key, AES.MODE_CTR, nonce=nonce)
         return cipher.decrypt(data[8:])
